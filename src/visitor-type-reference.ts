@@ -13,6 +13,7 @@ import {
   isTupleType,
   getGlobalSymbolNameWithFallback
 } from './utils';
+import { visitorTypeSymbol } from './visitor-type-symbol';
 
 export const visitorTypeReference = (node: ts.TypeReferenceNode, container: Container) => {
   const typeChecker = container.typeChecker;
@@ -25,9 +26,8 @@ export const visitorTypeReference = (node: ts.TypeReferenceNode, container: Cont
     return wrapper(factory.createIdentifier('Object'));
   }
 
-  if (node.typeName) {
-    // TODO: use a symbol resolver with nodejs require
-    return wrapper(factory.createIdentifier('Object'));
+  if (type.symbol) {
+    return visitorTypeSymbol(type.symbol, container);
   }
 
   if ((<any>type).intrinsicName) {

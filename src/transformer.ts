@@ -17,7 +17,8 @@ export const transformer = (program: ts.Program): ts.TransformerFactory<ts.Sourc
       compilerOptions,
       typeChecker,
       context,
-      languageVersion
+      languageVersion,
+      sourceFile
     }
 
     if (compilerOptions.emitDecoratorMetadata

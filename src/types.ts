@@ -9,6 +9,7 @@ export interface Container {
   languageVersion: ts.ScriptTarget;
   globalPromiseConstructorSymbol?: ts.Symbol;
   globalArraySymbol?: ts.Symbol;
+  sourceFile: ts.SourceFile;
 }
 
 export const enum IntrisicTypes {
