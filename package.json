@@ -1,0 +1,22 @@
+{
+  "name": "ts-transformer-design",
+  "version": "0.0.1",
+  "description": "TypeScript transformer that generates run-time design metadata.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "author": "Paul Le Couteur",
+  "license": "MIT",
+  "repository": "github:paeolo/ts-transformer-design",
+  "scripts": {
+    "build": "tsc",
+    "test": "cd fixtures && ttsc"
+  },
+  "peerDependencies": {
+    "typescript": "^4.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.8",
+    "ttypescript": "^1.5.10",
+    "typescript": "^4.1.5"
+  }
+}
