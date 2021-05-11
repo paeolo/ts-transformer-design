@@ -2,13 +2,17 @@ import ts from 'typescript';
 
 import {
   visitorType
-} from '../visitor-type'
+} from './visitor-type'
 import {
   METADATA_KEY,
   Container
-} from '../types'
+} from './types';
 
-export const getAddTypeMetadataHelper = (container: Container) => {
+export const visitorPropertyDeclaration = (node: ts.PropertyDeclaration, container: Container) => {
+  if (!node.decorators || node.decorators.length === 0) {
+    return;
+  }
+
   const factory = container.context.factory;
   const getEmitHelperFactory = (<any>container.context).getEmitHelperFactory;
 
@@ -55,15 +59,9 @@ export const getAddTypeMetadataHelper = (container: Container) => {
       )
     );
 
-  return (node: ts.PropertyDeclaration) => {
-    if (!node.decorators || node.decorators.length === 0) {
-      return;
-    }
+  const typeExpression = serializeTypeOfNode(node);
 
-    const typeExpression = serializeTypeOfNode(node);
-
-    (<any>node.decorators).push(
-      factory.createDecorator(createTypeMedataExpression(typeExpression))
-    );
-  }
+  (<any>node.decorators).push(
+    factory.createDecorator(createTypeMedataExpression(typeExpression))
+  );
 }

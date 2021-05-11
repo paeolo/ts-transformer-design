@@ -4,8 +4,8 @@ import {
   Container,
 } from './types';
 import {
-  getAddTypeMetadataHelper
-} from './utils'
+  visitorPropertyDeclaration
+} from './visitor-property-declaration';
 
 const isDecoratedClassElement = (member: ts.ClassElement, isStatic: boolean, parent: ts.Node) => {
   return (<any>ts).nodeOrChildIsDecorated(member, parent)
@@ -21,12 +21,11 @@ const getDecoratedClassElements = (node: ts.ClassDeclaration) => {
 }
 
 export const classVisitor = (node: ts.ClassDeclaration, container: Container): ts.Node => {
-  const addTypeMetadata = getAddTypeMetadataHelper(container);
   const members = getDecoratedClassElements(node);
 
   for (const member of members) {
     if (ts.isPropertyDeclaration(member)) {
-      addTypeMetadata(member);
+      visitorPropertyDeclaration(member, container);
     }
   }
 

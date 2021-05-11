@@ -9,7 +9,8 @@
   "repository": "github:paeolo/ts-transformer-design",
   "scripts": {
     "build": "tsc",
-    "test": "cd fixtures && ttsc"
+    "clean": "rm fixtures/*/tsconfig.tsbuildinfo",
+    "test": "cd fixtures && ttsc -b"
   },
   "peerDependencies": {
     "typescript": "^4.1.5"

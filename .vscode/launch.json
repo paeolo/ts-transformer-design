@@ -6,6 +6,9 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/ttsc",
+      "args": [
+        "-b"
+      ],
       "cwd": "${workspaceFolder}/fixtures",
       "console": "integratedTerminal",
     },

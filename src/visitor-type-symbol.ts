@@ -5,41 +5,53 @@ import {
   Container
 } from './types';
 import {
-  wrapper
+  wrapper,
+  getSymbolSourceFile,
+  replaceExt,
+  reverseResolution
 } from './utils';
 
 export const visitorTypeSymbol = (symbol: ts.Symbol, container: Container) => {
-  const parentSymbol = <ts.Symbol>((<any>symbol).parent);
+  const sourceFile = getSymbolSourceFile(symbol);
   const factory = container.context.factory;
 
-  if (parentSymbol && parentSymbol.flags & ts.SymbolFlags.ValueModule) {
-    let relativeName: string;
-    const symbolFileName = (<any>parentSymbol.declarations[0]).fileName;
+  let requirePath: string;
 
-    let relativeDirPath = path.relative(
-      path.dirname(container.sourceFile.fileName),
-      path.dirname(symbolFileName)
-    );
-    const parsedPath = path.parse(symbolFileName);
-
-    if (relativeDirPath.length === 0) {
-      relativeName = './'.concat(parsedPath.name)
-    }
-    else {
-      relativeName = path.join(relativeDirPath, parsedPath.name);
-    }
-
-    return wrapper(
-      factory.createPropertyAccessExpression(
-        factory.createCallExpression(
-          factory.createIdentifier('require'),
-          undefined,
-          [factory.createStringLiteral(relativeName)]
-        ),
-        factory.createIdentifier(symbol.name)
-      )
-
-    );
+  if (!sourceFile) {
+    return wrapper(factory.createIdentifier('Object'));
   }
-  return wrapper(factory.createIdentifier('Object'));
+
+  if (container.isSourceFileFromProject(sourceFile)) {
+    const relativeDirPath = path.relative(
+      path.dirname(container.sourceFile.fileName),
+      path.dirname(sourceFile.fileName)
+    );
+    const parsedPath = path.parse(sourceFile.fileName);
+    const fileName = replaceExt(parsedPath.name);
+
+    requirePath = relativeDirPath.length === 0
+      ? './'.concat(fileName)
+      : path.join(relativeDirPath, fileName);
+  } else {
+    const packageMeta = reverseResolution(sourceFile.fileName, container);
+
+    if (!packageMeta) {
+      return wrapper(factory.createIdentifier('Object'));
+    }
+
+    requirePath = packageMeta.pkg
+      .concat('/')
+      .concat((replaceExt(packageMeta.subModuleName)));
+  }
+
+  return wrapper(
+    factory.createPropertyAccessExpression(
+      factory.createCallExpression(
+        factory.createIdentifier('require'),
+        undefined,
+        [factory.createStringLiteral(requirePath)]
+      ),
+      factory.createIdentifier(symbol.name)
+    )
+  );
 }

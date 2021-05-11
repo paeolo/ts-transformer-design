@@ -10,6 +10,8 @@ export interface Container {
   globalPromiseConstructorSymbol?: ts.Symbol;
   globalArraySymbol?: ts.Symbol;
   sourceFile: ts.SourceFile;
+  reverseResolution: Map<string, PackageMeta | string>;
+  isSourceFileFromProject: (sourceFile: ts.SourceFile) => boolean;
 }
 
 export const enum IntrisicTypes {
@@ -29,4 +31,10 @@ export const enum IntrisicTypes {
   UNDEFINED = 'undefined',
   UNKNOWN = 'unknown',
   VOID = 'void',
+}
+
+export interface PackageMeta {
+  pkg: string;
+  fileName: string;
+  subModuleName: string;
 }

@@ -1,8 +1,7 @@
 {
-  "name": "example-1",
-  "version": "1.0.0",
   "private": true,
-  "author": "Paul Le Couteur",
-  "license": "MIT",
-  "main": "dist/index.js"
+  "workspaces": [
+    "example-1",
+    "example-2"
+  ]
 }
