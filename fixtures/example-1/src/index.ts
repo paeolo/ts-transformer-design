@@ -4,5 +4,5 @@ const property = (target: any, key: string) => { }
 
 class Who {
   @property
-  bar: LOL;
+  bar: Array<string>;
 }

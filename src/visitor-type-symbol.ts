@@ -18,7 +18,7 @@ export const visitorTypeSymbol = (symbol: ts.Symbol, container: Container) => {
   let requirePath: string;
 
   if (!sourceFile) {
-    return wrapper(factory.createIdentifier('Object'));
+    return wrapper(factory.createIdentifier(symbol.name));
   }
 
   if (container.isSourceFileFromProject(sourceFile)) {

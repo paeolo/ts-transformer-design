@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm fixtures/*/tsconfig.tsbuildinfo",
-    "test": "cd fixtures && ttsc -b"
+    "test": "cd fixtures && ttsc -b --watch"
   },
   "peerDependencies": {
     "typescript": "^4.1.5"

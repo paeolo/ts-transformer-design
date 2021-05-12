@@ -1,3 +1,3 @@
-import { Foo } from './test';
+import { POUF } from './test2';
 
-export type LOL = Foo;
+export type LOL = POUF;

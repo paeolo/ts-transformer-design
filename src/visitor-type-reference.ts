@@ -7,10 +7,7 @@ import {
 import {
   getGlobalBigIntNameWithFallback,
   wrapper,
-  isArrayType,
   isFunctionType,
-  isPromiseType,
-  isTupleType,
   getGlobalSymbolNameWithFallback
 } from './utils';
 import {
@@ -29,7 +26,15 @@ export const visitorTypeReference = (node: ts.TypeReferenceNode, container: Cont
   }
 
   if (type.symbol && (type.symbol.flags & ts.SymbolFlags.Value)) {
-    return visitorTypeSymbol(type.symbol, container);
+    if (type.symbol.flags & ts.SymbolFlags.RegularEnum) {
+      return wrapper(
+        factory.createStringLiteral('regularEnum'),
+        visitorTypeSymbol(type.symbol, container),
+        type.symbol.name
+      );
+    } else {
+      return visitorTypeSymbol(type.symbol, container);
+    }
   }
 
   if ((<any>type).intrinsicName) {
@@ -65,12 +70,6 @@ export const visitorTypeReference = (node: ts.TypeReferenceNode, container: Cont
   }
   else if (isFunctionType(type, typeChecker)) {
     return wrapper(factory.createIdentifier('Function'));
-  }
-  else if (isPromiseType(type, container)) {
-    return wrapper(factory.createIdentifier('Promise'));
-  }
-  else if (isArrayType(type, container) || isTupleType(type)) {
-    return wrapper(factory.createIdentifier('Array'));
   }
 
   return wrapper(factory.createIdentifier('Object'));
