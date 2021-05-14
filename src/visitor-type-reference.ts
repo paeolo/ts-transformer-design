@@ -62,7 +62,7 @@ export const visitorType = (type: ts.Type, container: Container): ts.ObjectLiter
    */
   if (type.flags & ts.TypeFlags.Intersection) {
     return wrapExpression(
-      factory.createStringLiteral('ALL_OF'),
+      factory.createStringLiteral('allOf'),
       factory.createArrayLiteralExpression(
         (<any>type).types.map((value: ts.Type) => visitorType(value, container))
       )
@@ -74,7 +74,7 @@ export const visitorType = (type: ts.Type, container: Container): ts.ObjectLiter
    */
   if (type.flags & ts.TypeFlags.Union) {
     return wrapExpression(
-      factory.createStringLiteral('ONE_OF'),
+      factory.createStringLiteral('anyOf'),
       factory.createArrayLiteralExpression(
         (<any>type).types.map((value: ts.Type) => visitorType(value, container))
       )

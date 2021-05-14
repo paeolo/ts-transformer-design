@@ -104,14 +104,14 @@ export const visitorTypeNode = (node: ts.TypeNode | undefined, container: Contai
 
     case ts.SyntaxKind.IntersectionType:
       return wrapExpression(
-        factory.createStringLiteral('ALL_OF'),
+        factory.createStringLiteral('allOf'),
         factory.createArrayLiteralExpression(
           (<any>node).types.map((value: ts.TypeNode) => visitorTypeNode(value, container))
         )
       );
     case ts.SyntaxKind.UnionType:
       return wrapExpression(
-        factory.createStringLiteral('ONE_OF'),
+        factory.createStringLiteral('anyOf'),
         factory.createArrayLiteralExpression(
           (<any>node).types.map((value: ts.TypeNode) => visitorTypeNode(value, container))
         )
@@ -119,7 +119,7 @@ export const visitorTypeNode = (node: ts.TypeNode | undefined, container: Contai
 
     case ts.SyntaxKind.ConditionalType:
       return wrapExpression(
-        factory.createStringLiteral('ONE_OF'),
+        factory.createStringLiteral('anyOf'),
         factory.createArrayLiteralExpression(
           [(<any>node).trueType, (<any>node).falseType].map(value => visitorTypeNode(value, container))
         )
