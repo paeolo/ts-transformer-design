@@ -6,37 +6,91 @@ import {
 } from './types';
 import {
   getGlobalBigIntNameWithFallback,
-  wrapper,
-  isFunctionType,
-  getGlobalSymbolNameWithFallback
+  getGlobalSymbolNameWithFallback,
+  wrapExpression,
 } from './utils';
 import {
-  visitorTypeSymbol
-} from './visitor-type-symbol';
+  visitorSymbol
+} from './visitor-symbol';
 
 export const visitorTypeReference = (node: ts.TypeReferenceNode, container: Container) => {
   const typeChecker = container.typeChecker;
   const factory = container.context.factory;
-  const languageVersion = container.languageVersion;
 
   const type = typeChecker.getTypeFromTypeNode(node);
 
   if (!type) {
-    return wrapper(factory.createIdentifier('Object'));
+    return wrapExpression(factory.createIdentifier('Object'));
   }
 
+  return visitorType(type, container);
+}
+
+export const visitorType = (type: ts.Type, container: Container): ts.ObjectLiteralExpression => {
+  const factory = container.context.factory;
+  const languageVersion = container.languageVersion;
+
+  /**
+   * Array
+   */
+  if (type.symbol
+    && !(<any>type.symbol).parent
+    && type.symbol.name === 'Array'
+    && (<any>type).typeArguments
+    && (<any>type).typeArguments[0]) {
+    return wrapExpression(
+      factory.createIdentifier('Array'),
+      visitorType((<any>type).typeArguments[0], container)
+    );
+  }
+
+  /**
+   * Intersection
+   */
+  if (type.flags & ts.TypeFlags.Intersection) {
+    return wrapExpression(
+      factory.createStringLiteral('ALL_OF'),
+      factory.createArrayLiteralExpression(
+        (<any>type).types.map((value: ts.Type) => visitorType(value, container))
+      )
+    );
+  }
+
+  /**
+   * Union
+   */
+  if (type.flags & ts.TypeFlags.Union) {
+    return wrapExpression(
+      factory.createStringLiteral('ONE_OF'),
+      factory.createArrayLiteralExpression(
+        (<any>type).types.map((value: ts.Type) => visitorType(value, container))
+      )
+    );
+  }
+
+  /**
+   * Regular Enum
+   */
+  if (type.symbol && (type.symbol.flags & ts.SymbolFlags.RegularEnum)) {
+    const items = visitorSymbol(type.symbol, container);
+
+    return wrapExpression(
+      factory.createStringLiteral('regularEnum'),
+      wrapExpression(items!),
+      type.symbol.name
+    );
+  }
+
+  /**
+   * Value
+   */
   if (type.symbol && (type.symbol.flags & ts.SymbolFlags.Value)) {
-    if (type.symbol.flags & ts.SymbolFlags.RegularEnum) {
-      return wrapper(
-        factory.createStringLiteral('regularEnum'),
-        visitorTypeSymbol(type.symbol, container),
-        type.symbol.name
-      );
-    } else {
-      return visitorTypeSymbol(type.symbol, container);
-    }
+    return wrapExpression(visitorSymbol(type.symbol, container)!);
   }
 
+  /**
+   * Intrisic type
+   */
   if ((<any>type).intrinsicName) {
     switch (<string>(<any>type).intrinsicName) {
       case IntrisicTypes.ANY:
@@ -44,33 +98,33 @@ export const visitorTypeReference = (node: ts.TypeReferenceNode, container: Cont
       case IntrisicTypes.OBJECT:
       case IntrisicTypes.UNDEFINED:
       case IntrisicTypes.UNKNOWN:
-        return wrapper(factory.createIdentifier('Object'));
+        return wrapExpression(factory.createIdentifier('Object'));
       case IntrisicTypes.VOID:
       case IntrisicTypes.NEVER:
-        return wrapper(factory.createVoidZero());
+        return wrapExpression(factory.createVoidZero());
       case IntrisicTypes.BIGINT:
-        return wrapper(getGlobalBigIntNameWithFallback(languageVersion, factory));
+        return wrapExpression(getGlobalBigIntNameWithFallback(languageVersion, factory));
       case IntrisicTypes.BOOLEAN:
       case IntrisicTypes.TRUE:
       case IntrisicTypes.FALSE:
-        return wrapper(factory.createIdentifier('Boolean'));
+        return wrapExpression(factory.createIdentifier('Boolean'));
       case IntrisicTypes.NUMBER:
-        return wrapper(factory.createIdentifier('Number'));
+        return wrapExpression(factory.createIdentifier('Number'));
       case IntrisicTypes.STRING:
-        return wrapper(factory.createIdentifier('String'));
+        return wrapExpression(factory.createIdentifier('String'));
       case IntrisicTypes.NULL:
-        return wrapper(factory.createNull());
+        return wrapExpression(factory.createNull());
       case IntrisicTypes.SYMBOL:
-        return wrapper(
+        return wrapExpression(
           languageVersion < ts.ScriptTarget.ES2015
             ? getGlobalSymbolNameWithFallback(factory)
             : factory.createIdentifier('Symbol')
         );
     }
   }
-  else if (isFunctionType(type, typeChecker)) {
-    return wrapper(factory.createIdentifier('Function'));
-  }
 
-  return wrapper(factory.createIdentifier('Object'));
+  /**
+   * Failover
+   */
+  return wrapExpression(factory.createIdentifier('Object'));
 }

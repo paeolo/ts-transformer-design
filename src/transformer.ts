@@ -10,6 +10,10 @@ import {
   visitor
 } from './visitor';
 
+/**
+ * A typescript transformer to add type metadata
+ * in the form of a type resolver
+ */
 export const transformer = (program: ts.Program): ts.TransformerFactory<ts.SourceFile> => {
   const typeChecker = program.getTypeChecker();
   const compilerOptions = program.getCompilerOptions();
@@ -18,14 +22,14 @@ export const transformer = (program: ts.Program): ts.TransformerFactory<ts.Sourc
 
   return (context: ts.TransformationContext) => (sourceFile: ts.SourceFile) => {
     const container: Container = {
-      compilerOptions,
       typeChecker,
+      compilerOptions,
       context,
       languageVersion,
       sourceFile,
-      reverseResolution: map,
       isSourceFileFromProject: (sourceFile) => !program.isSourceFileFromExternalLibrary(sourceFile)
-        && !program.isSourceFileDefaultLibrary(sourceFile)
+        && !program.isSourceFileDefaultLibrary(sourceFile),
+      reverseResolution: map,
     }
 
     if (compilerOptions.emitDecoratorMetadata

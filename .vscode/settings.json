@@ -8,7 +8,7 @@
     "**/.git": true,
     "**/node_modules": true,
     "*.js": true,
-    "dist": true,
+    "**/dist": true,
     "logs": true,
     "yarn.lock": true,
   },

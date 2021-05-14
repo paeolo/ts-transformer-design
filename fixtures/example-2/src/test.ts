@@ -1,5 +1,3 @@
-import * as LOL from './test2';
-
-export class Foo {
+export class FooBis {
   bar: number;
 }

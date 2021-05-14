@@ -1,13 +1,49 @@
-import path from 'path';
 import ts from 'typescript';
+import path from 'path';
+
 import {
   Container,
   PackageMeta
 } from "../types";
 
+/**
+ * Gather information about module resolution
+ */
+export const createReverseResolutionMap = (sourceFiles: ts.SourceFile[]) => {
+  const map = new Map<string, PackageMeta | string>();
+
+  for (const sourceFile of sourceFiles) {
+    if ((<any>sourceFile).resolvedModules) {
+      const resolvedModules = <Map<string, any>>(<any>sourceFile).resolvedModules;
+
+      for (const [, value] of resolvedModules.entries()) {
+        if (value && value.resolvedFileName) {
+          if (value.isExternalLibraryImport && value.packageId) {
+            map.set(
+              value.resolvedFileName,
+              {
+                fileName: value.resolvedFileName,
+                pkg: value.packageId.name,
+                subModuleName: value.packageId.subModuleName
+              }
+            );
+          }
+          else if (!map.has(value.resolvedFileName)) {
+            map.set(value.resolvedFileName, sourceFile.fileName);
+          }
+        }
+      }
+    }
+  }
+
+  return map;
+}
+/**
+ * Try to reverse the module resolution returning undefined
+ * if not possible
+ */
 export const reverseResolution = (fileName: string, container: Container): PackageMeta | undefined => {
   const map = container.reverseResolution;
-
   const resolution = map.get(fileName);
 
   if (!resolution) {
@@ -41,35 +77,4 @@ export const reverseResolution = (fileName: string, container: Container): Packa
 
   map.set(fileName, newResolution);
   return newResolution;
-}
-
-
-export const createReverseResolutionMap = (sourceFiles: ts.SourceFile[]) => {
-  const map = new Map<string, PackageMeta | string>();
-
-  for (const sourceFile of sourceFiles) {
-    if ((<any>sourceFile).resolvedModules) {
-      const resolvedModules = <Map<string, any>>(<any>sourceFile).resolvedModules;
-
-      for (const [, value] of resolvedModules.entries()) {
-        if (value && value.resolvedFileName) {
-          if (value.isExternalLibraryImport && value.packageId) {
-            map.set(
-              value.resolvedFileName,
-              {
-                fileName: value.resolvedFileName,
-                pkg: value.packageId.name,
-                subModuleName: value.packageId.subModuleName
-              }
-            );
-          }
-          else if (!map.has(value.resolvedFileName)) {
-            map.set(value.resolvedFileName, sourceFile.fileName);
-          }
-        }
-      }
-    }
-  }
-
-  return map;
 }

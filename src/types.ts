@@ -7,11 +7,9 @@ export interface Container {
   compilerOptions: ts.CompilerOptions;
   context: ts.TransformationContext;
   languageVersion: ts.ScriptTarget;
-  globalPromiseConstructorSymbol?: ts.Symbol;
-  globalArraySymbol?: ts.Symbol;
   sourceFile: ts.SourceFile;
-  reverseResolution: Map<string, PackageMeta | string>;
   isSourceFileFromProject: (sourceFile: ts.SourceFile) => boolean;
+  reverseResolution: Map<string, PackageMeta | string>;
 }
 
 export const enum IntrisicTypes {

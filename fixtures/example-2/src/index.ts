@@ -1,3 +1,8 @@
-import { POUF } from './test2';
+import {
+  FooBis
+} from './test';
 
-export type LOL = POUF;
+export class Foo {
+  bar: number;
+}
+export type TypeReference = FooBis;

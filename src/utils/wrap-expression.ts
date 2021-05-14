@@ -1,6 +1,9 @@
 import ts from 'typescript';
 
-export const wrapper = (type: ts.Expression, items?: ts.Expression, title?: string) => {
+/**
+ * Wrap the type expression in an object literal
+ */
+export const wrapExpression = (type: ts.Expression, items?: ts.Expression, title?: string) => {
   const expressions = [
     ts.factory.createPropertyAssignment('type', type)
   ];

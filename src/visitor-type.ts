@@ -4,7 +4,7 @@ import {
   Container
 } from './types';
 import {
-  wrapper,
+  wrapExpression,
   getGlobalBigIntNameWithFallback,
   getGlobalSymbolNameWithFallback
 } from './utils'
@@ -17,29 +17,29 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
   const languageVersion = container.languageVersion;
 
   if (node === undefined) {
-    return wrapper(factory.createIdentifier('Object'));
+    return wrapExpression(factory.createIdentifier('Object'));
   }
 
   switch (node.kind) {
     case ts.SyntaxKind.VoidKeyword:
     case ts.SyntaxKind.UndefinedKeyword:
     case ts.SyntaxKind.NeverKeyword:
-      return wrapper(factory.createVoidZero());
+      return wrapExpression(factory.createVoidZero());
 
     case ts.SyntaxKind.ParenthesizedType:
       return visitorType((<any>node).type, container);
 
     case ts.SyntaxKind.FunctionType:
     case ts.SyntaxKind.ConstructorType:
-      return wrapper(factory.createIdentifier('Function'));
+      return wrapExpression(factory.createIdentifier('Function'));
 
     case ts.SyntaxKind.ArrayType:
-      return wrapper(
+      return wrapExpression(
         factory.createIdentifier('Array'),
         visitorType((<any>node).elementType, container)
       );
     case ts.SyntaxKind.TupleType:
-      return wrapper(
+      return wrapExpression(
         factory.createIdentifier('Array'),
         factory.createArrayLiteralExpression(
           (<any>node).elements.map((value: ts.TypeNode) => {
@@ -54,46 +54,46 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
 
     case ts.SyntaxKind.TypePredicate:
     case ts.SyntaxKind.BooleanKeyword:
-      return wrapper(factory.createIdentifier('Boolean'));
+      return wrapExpression(factory.createIdentifier('Boolean'));
 
     case ts.SyntaxKind.StringKeyword:
-      return wrapper(factory.createIdentifier('String'));
+      return wrapExpression(factory.createIdentifier('String'));
 
     case ts.SyntaxKind.ObjectKeyword:
-      return wrapper(factory.createIdentifier('Object'));
+      return wrapExpression(factory.createIdentifier('Object'));
 
     case ts.SyntaxKind.LiteralType:
       switch ((<any>node).literal.kind) {
         case ts.SyntaxKind.StringLiteral:
         case ts.SyntaxKind.NoSubstitutionTemplateLiteral:
-          return wrapper(factory.createIdentifier('String'));
+          return wrapExpression(factory.createIdentifier('String'));
 
         case ts.SyntaxKind.PrefixUnaryExpression:
         case ts.SyntaxKind.NumericLiteral:
-          return wrapper(factory.createIdentifier('Number'));
+          return wrapExpression(factory.createIdentifier('Number'));
 
         case ts.SyntaxKind.BigIntLiteral:
-          return wrapper(getGlobalBigIntNameWithFallback(languageVersion, factory));
+          return wrapExpression(getGlobalBigIntNameWithFallback(languageVersion, factory));
 
         case ts.SyntaxKind.TrueKeyword:
         case ts.SyntaxKind.FalseKeyword:
-          return wrapper(factory.createIdentifier('Boolean'));
+          return wrapExpression(factory.createIdentifier('Boolean'));
 
         case ts.SyntaxKind.NullKeyword:
-          return wrapper(factory.createNull());
+          return wrapExpression(factory.createNull());
 
         default:
           return (<any>ts).Debug.failBadts.SyntaxKind((<any>node).literal);
       }
 
     case ts.SyntaxKind.NumberKeyword:
-      return wrapper(factory.createIdentifier('Number'));
+      return wrapExpression(factory.createIdentifier('Number'));
 
     case ts.SyntaxKind.BigIntKeyword:
-      return wrapper(getGlobalBigIntNameWithFallback(languageVersion, factory));
+      return wrapExpression(getGlobalBigIntNameWithFallback(languageVersion, factory));
 
     case ts.SyntaxKind.SymbolKeyword:
-      return wrapper(
+      return wrapExpression(
         languageVersion < ts.ScriptTarget.ES2015
           ? getGlobalSymbolNameWithFallback(factory)
           : factory.createIdentifier('Symbol')
@@ -103,14 +103,14 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
       return visitorTypeReference(<ts.TypeReferenceNode>node, container);
 
     case ts.SyntaxKind.IntersectionType:
-      return wrapper(
+      return wrapExpression(
         factory.createStringLiteral('ALL_OF'),
         factory.createArrayLiteralExpression(
           (<any>node).types.map((value: ts.TypeNode) => visitorType(value, container))
         )
       );
     case ts.SyntaxKind.UnionType:
-      return wrapper(
+      return wrapExpression(
         factory.createStringLiteral('ONE_OF'),
         factory.createArrayLiteralExpression(
           (<any>node).types.map((value: ts.TypeNode) => visitorType(value, container))
@@ -118,7 +118,7 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
       );
 
     case ts.SyntaxKind.ConditionalType:
-      return wrapper(
+      return wrapExpression(
         factory.createStringLiteral('ONE_OF'),
         factory.createArrayLiteralExpression(
           [(<any>node).trueType, (<any>node).falseType].map(value => visitorType(value, container))
@@ -157,5 +157,5 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
       return (<any>ts).Debug.failBadts.SyntaxKind(node);
   }
 
-  return wrapper(factory.createIdentifier('Object'));
+  return wrapExpression(factory.createIdentifier('Object'));
 }

@@ -8,6 +8,9 @@ import {
   Container
 } from './types';
 
+/**
+ * Visit a property declaration
+ */
 export const visitorPropertyDeclaration = (node: ts.PropertyDeclaration, container: Container) => {
   if (!node.decorators || node.decorators.length === 0) {
     return;

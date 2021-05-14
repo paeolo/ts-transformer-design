@@ -20,6 +20,9 @@ const getDecoratedClassElements = (node: ts.ClassDeclaration) => {
   return (<any>ts).filter(node.members, (m: ts.ClassElement) => isInstanceDecoratedClassElement(m, node));
 }
 
+/**
+ * Visit a class declaration
+ */
 export const classVisitor = (node: ts.ClassDeclaration, container: Container): ts.Node => {
   const members = getDecoratedClassElements(node);
 
