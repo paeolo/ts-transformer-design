@@ -4,7 +4,7 @@ import {
 } from 'example-2';
 import {
   Pikachu,
-  NumberOrNull
+  StringArray
 } from './test';
 
 export enum NumberEnum {
@@ -26,5 +26,5 @@ export class Who {
   @property
   lol: string | null
   @property
-  testtest: NumberOrNull;
+  testtest?: StringArray;
 }

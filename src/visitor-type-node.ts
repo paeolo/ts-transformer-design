@@ -12,7 +12,7 @@ import {
   visitorTypeReference
 } from './visitor-type-reference'
 
-export const visitorType = (node: ts.TypeNode | undefined, container: Container): ts.ObjectLiteralExpression => {
+export const visitorTypeNode = (node: ts.TypeNode | undefined, container: Container): ts.ObjectLiteralExpression => {
   const factory = container.context.factory;
   const languageVersion = container.languageVersion;
 
@@ -27,7 +27,7 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
       return wrapExpression(factory.createVoidZero());
 
     case ts.SyntaxKind.ParenthesizedType:
-      return visitorType((<any>node).type, container);
+      return visitorTypeNode((<any>node).type, container);
 
     case ts.SyntaxKind.FunctionType:
     case ts.SyntaxKind.ConstructorType:
@@ -36,7 +36,7 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
     case ts.SyntaxKind.ArrayType:
       return wrapExpression(
         factory.createIdentifier('Array'),
-        visitorType((<any>node).elementType, container)
+        visitorTypeNode((<any>node).elementType, container)
       );
     case ts.SyntaxKind.TupleType:
       return wrapExpression(
@@ -44,10 +44,10 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
         factory.createArrayLiteralExpression(
           (<any>node).elements.map((value: ts.TypeNode) => {
             if (ts.isNamedTupleMember(value)) {
-              return visitorType(value.type, container);
+              return visitorTypeNode(value.type, container);
             }
             else {
-              return visitorType(value, container)
+              return visitorTypeNode(value, container)
             }
           })
         ));
@@ -106,14 +106,14 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
       return wrapExpression(
         factory.createStringLiteral('ALL_OF'),
         factory.createArrayLiteralExpression(
-          (<any>node).types.map((value: ts.TypeNode) => visitorType(value, container))
+          (<any>node).types.map((value: ts.TypeNode) => visitorTypeNode(value, container))
         )
       );
     case ts.SyntaxKind.UnionType:
       return wrapExpression(
         factory.createStringLiteral('ONE_OF'),
         factory.createArrayLiteralExpression(
-          (<any>node).types.map((value: ts.TypeNode) => visitorType(value, container))
+          (<any>node).types.map((value: ts.TypeNode) => visitorTypeNode(value, container))
         )
       );
 
@@ -121,13 +121,13 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
       return wrapExpression(
         factory.createStringLiteral('ONE_OF'),
         factory.createArrayLiteralExpression(
-          [(<any>node).trueType, (<any>node).falseType].map(value => visitorType(value, container))
+          [(<any>node).trueType, (<any>node).falseType].map(value => visitorTypeNode(value, container))
         )
       );
 
     case ts.SyntaxKind.TypeOperator:
       if ((<any>node).operator === ts.SyntaxKind.ReadonlyKeyword) {
-        return visitorType((<any>node).type, container);
+        return visitorTypeNode((<any>node).type, container);
       }
       break;
 
@@ -152,7 +152,7 @@ export const visitorType = (node: ts.TypeNode | undefined, container: Container)
     case ts.SyntaxKind.JSDocNullableType:
     case ts.SyntaxKind.JSDocNonNullableType:
     case ts.SyntaxKind.JSDocOptionalType:
-      return visitorType((<any>node).type, container);
+      return visitorTypeNode((<any>node).type, container);
     default:
       return (<any>ts).Debug.failBadts.SyntaxKind(node);
   }

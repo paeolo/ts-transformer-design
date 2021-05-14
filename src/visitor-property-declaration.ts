@@ -1,8 +1,8 @@
 import ts from 'typescript';
 
 import {
-  visitorType
-} from './visitor-type'
+  visitorTypeNode
+} from './visitor-type-node'
 import {
   METADATA_KEY,
   Container
@@ -20,7 +20,7 @@ export const visitorPropertyDeclaration = (node: ts.PropertyDeclaration, contain
   const getEmitHelperFactory = (<any>container.context).getEmitHelperFactory;
 
   const serializeTypeOfPropertyDeclaration = (node: ts.PropertyDeclaration) => {
-    const objectLiteralExpression = visitorType(node.type, container);
+    const objectLiteralExpression = visitorTypeNode(node.type, container);
 
     if (!node.questionToken) {
       const properties = objectLiteralExpression.properties;

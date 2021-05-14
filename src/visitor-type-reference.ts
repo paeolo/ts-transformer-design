@@ -31,6 +31,19 @@ export const visitorType = (type: ts.Type, container: Container): ts.ObjectLiter
   const languageVersion = container.languageVersion;
 
   /**
+   * Regular Enum
+   */
+  if (type.symbol && (type.symbol.flags & ts.SymbolFlags.RegularEnum)) {
+    const items = visitorSymbol(type.symbol, container);
+
+    return wrapExpression(
+      factory.createStringLiteral('regularEnum'),
+      wrapExpression(items!),
+      type.symbol.name
+    );
+  }
+
+  /**
    * Array
    */
   if (type.symbol
@@ -65,19 +78,6 @@ export const visitorType = (type: ts.Type, container: Container): ts.ObjectLiter
       factory.createArrayLiteralExpression(
         (<any>type).types.map((value: ts.Type) => visitorType(value, container))
       )
-    );
-  }
-
-  /**
-   * Regular Enum
-   */
-  if (type.symbol && (type.symbol.flags & ts.SymbolFlags.RegularEnum)) {
-    const items = visitorSymbol(type.symbol, container);
-
-    return wrapExpression(
-      factory.createStringLiteral('regularEnum'),
-      wrapExpression(items!),
-      type.symbol.name
     );
   }
 

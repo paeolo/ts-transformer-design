@@ -2,4 +2,4 @@ export class Pikachu {
   attack: string;
 }
 
-export type NumberOrNull = string[];
+export type StringArray = string[];
