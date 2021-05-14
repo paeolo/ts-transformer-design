@@ -5,9 +5,6 @@ import {
   Container
 } from '../types';
 import {
-  replaceExt
-} from './replace-ext';
-import {
   reverseResolution
 } from './reverse-resolution';
 
@@ -25,7 +22,7 @@ export const getRequirePath = (sourceFile: ts.SourceFile, container: Container) 
       path.dirname(sourceFile.fileName)
     );
 
-    const fileName = replaceExt(path.basename(sourceFile.fileName));
+    const fileName = (<any>ts).removeFileExtension(path.basename(sourceFile.fileName));
 
     return relativeDir.length === 0
       ? './'.concat(fileName)
@@ -40,5 +37,5 @@ export const getRequirePath = (sourceFile: ts.SourceFile, container: Container) 
 
   return packageMeta.pkg
     .concat('/')
-    .concat((replaceExt(packageMeta.subModuleName)));
+    .concat(((<any>ts).removeFileExtension(packageMeta.subModuleName)));
 }

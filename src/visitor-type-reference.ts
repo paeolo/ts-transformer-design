@@ -38,7 +38,7 @@ export const visitorType = (type: ts.Type, container: Container): ts.ObjectLiter
 
     return wrapExpression(
       factory.createStringLiteral('regularEnum'),
-      wrapExpression(items!),
+      items!,
       type.symbol.name
     );
   }
